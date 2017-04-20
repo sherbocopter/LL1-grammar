@@ -23,6 +23,7 @@ var checkLL1 = function() {
 		var nonTerminal = td.nonTerminals[i];
 		findFirst(nonTerminal);
 	}
+	console.log('----- First:')
 	console.log(first);
 
 	// follow
@@ -30,6 +31,7 @@ var checkLL1 = function() {
 		var nonTerminal = td.nonTerminals[i];
 		findFollow(nonTerminal);
 	}
+	console.log('----- Follow:');
 	console.log(follow);
 
 	// parsing table
@@ -158,6 +160,7 @@ var doParsingTable = function() {
 		}
 	}
 	
+	console.log('----- Parsing table:');
 	console.log(parsingTable);
 	return true;
 }
@@ -202,8 +205,37 @@ var getFirsts = function(w) {
 	return f;
 }
 
-var checkWords = function() {
+var checkWord = function(word) {
+	var w = word + '$';
+	var stack = ['$', td.startSymbol];
+	var cnt = 0;
+	var res = [];
 
+	while (stack.length > 0) {
+		var top = stack.pop();
+		if (w[cnt] === top) {
+			cnt++;
+		} else {
+			if (td.nonTerminals.indexOf(top) < 0)
+				return false;
+			if (!checkNested(parsingTable, top, w[cnt]))
+				return false;
+			else {
+				var prodInd = parsingTable[top][w[cnt]];
+				var prod = td.productions[prodInd];
+
+				res.push(prodInd);
+
+				if (prod.r !== td.lambda) {
+					for (var i = prod.r.length - 1; i >= 0; --i) {
+						stack.push(prod.r[i]);
+					}
+				}
+			}
+		}
+	}
+
+	return res;
 }
 
 module.exports = {
@@ -214,5 +246,5 @@ module.exports = {
 		return td;
 	},
 	checkLL1: checkLL1,
-	checkWords: checkWords
+	checkWord: checkWord
 }

@@ -17,10 +17,32 @@ var Grammar = require('./grammar.js');
 
 var grammarData = Input.grammarData();
 Grammar.loadData(grammarData);
-console.log(grammarData);
 
 var isLL1 = Grammar.checkLL1();
 
-console.log(isLL1);
+if (isLL1) {
+	var td = Grammar.getTranslatorData();
 
-Grammar.checkWords(Input.grammarInput);
+	console.log('----- Grammar productions:');
+	for (var i = 0; i < td.productions.length; ++i) {
+		var prod = td.productions[i];
+		console.log('\t' + i + '. ' + prod.l + ' -> ' + prod.r);
+	}
+
+	var words = Input.grammarInput();
+	for (var i = 0; i < words.length; ++i) {
+		var word = words[i];
+
+		console.log('--- Parsing: ' + word);
+
+		var res = Grammar.checkWord(word);
+		if (res === false) {
+			console.log(' > failure');
+		} else {
+			console.log(' > success');
+			console.log(' > ' + res);
+		}
+	}
+} else {
+	console.log('----- Grammar is not LL(1)');
+}

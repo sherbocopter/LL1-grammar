@@ -133,6 +133,10 @@ module.exports = {
 		return result;
 	},
 	grammarInput: function() {
-		
+		return [
+			'_+_',
+			'_++_',
+			'(_+_)*_+(_+_+(_*_))'
+		];
 	}
 };
