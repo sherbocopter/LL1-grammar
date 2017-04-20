@@ -19,6 +19,5 @@ var grammarData = Input.grammarData();
 Grammar.loadData(grammarData);
 console.log(grammarData);
 
-Grammar.doTable();
 Grammar.checkLL1();
 Grammar.checkWords(Input.grammarInput);

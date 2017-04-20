@@ -14,7 +14,7 @@ Array.prototype.concatUnique = function(array) {
 		this.pushUnique(array[i]);
 }
 
-var doTable = function() {
+var checkLL1 = function() {
 	// first
 	for (var i = 0; i < td.nonTerminals.length; ++i) {
 		var nonTerminal = td.nonTerminals[i];
@@ -28,6 +28,9 @@ var doTable = function() {
 		findFollow(nonTerminal);
 	}
 	console.log(follow);
+
+	// parsing table
+	doTable();
 }
 
 var findFirst = function(nonTerminal) { // lazy af
@@ -121,7 +124,7 @@ var findFollow = function(nonTerminal) {
 	return follow[nonTerminal];
 }
 
-var checkLL1 = function() {
+var doTable = function() {
 
 }
 
@@ -136,7 +139,6 @@ module.exports = {
 	getTranslatorData: function() {
 		return td;
 	},
-	doTable: doTable,
 	checkLL1: checkLL1,
 	checkWords: checkWords
 }
