@@ -1,8 +1,11 @@
 `use strict`
 
+var checkNested = require('./check_nested.js');
+
 var td = null;
 var first = {};
 var follow = {};
+var parsingTable = {};
 
 Array.prototype.pushUnique = function(element) {
 	if (this.indexOf(element) < 0)
@@ -30,7 +33,7 @@ var checkLL1 = function() {
 	console.log(follow);
 
 	// parsing table
-	doTable();
+	return doParsingTable();
 }
 
 var findFirst = function(nonTerminal) { // lazy af
@@ -124,8 +127,79 @@ var findFollow = function(nonTerminal) {
 	return follow[nonTerminal];
 }
 
-var doTable = function() {
+var doParsingTable = function() {
+	for (var i = 0; i < td.nonTerminals.length; ++i) {
+		var nonTerminal = td.nonTerminals[i];
 
+		var fi = first[nonTerminal];
+		var fo = follow[nonTerminal];
+
+		for (var j = 0; j < td.productions.length; ++j) {
+			var prod = td.productions[j];
+			if (prod.l !== nonTerminal)
+				continue;
+
+			var firsts = getFirsts(prod.r);
+			for (var k = 0; k < firsts.length; ++k) {
+				var terminal = firsts[k];
+
+				if (terminal === td.lambda) {
+					for (var l = 0; l < fo.length; ++l) {
+						var canContinue = addToParsingTable(nonTerminal, fo[l], j);
+						if (!canContinue)
+							return false;
+					}
+				} else {
+					var canContinue = addToParsingTable(nonTerminal, terminal, j);
+					if (!canContinue)
+						return false;
+				}
+			}
+		}
+	}
+	
+	console.log(parsingTable);
+	return true;
+}
+
+var addToParsingTable = function(nonTerminal, terminal, ind) {
+	if (checkNested(parsingTable, nonTerminal, terminal) === true)
+		return false;
+	else {
+		if (!parsingTable.hasOwnProperty(nonTerminal))
+			parsingTable[nonTerminal] = {};
+		parsingTable[nonTerminal][terminal] = ind;
+	}
+	return true;
+}
+
+var getFirsts = function(w) {
+	var f = [];
+	var cnt = 0;
+
+	while (cnt < w.length) {
+		var possibleFirst = w[cnt];
+		if (td.nonTerminals.indexOf(possibleFirst) < 0) {
+			f.pushUnique(possibleFirst);
+			break;
+		} else {
+			var possibleFirsts = findFirst(possibleFirst);
+			if (possibleFirsts.indexOf(td.lambda) < 0) {
+				f.concatUnique(possibleFirsts);
+				break;
+			} else {
+				var clone = possibleFirsts.slice();
+				clone.splice(possibleFirsts.indexOf(td.Lambda), 1);
+				f.concatUnique(clone);
+				cnt++;
+			}
+		}
+	}
+	if (cnt === w.length) {
+		f.pushUnique(td.lambda);
+	}
+
+	return f;
 }
 
 var checkWords = function() {
